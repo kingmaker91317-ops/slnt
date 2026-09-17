@@ -2,48 +2,90 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>User Management Dashboard</title>
+    <title>SC Mod Menu - User & Key Management Dashboard</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #121212; color: white; padding: 20px; }
-        .container { max-width: 900px; margin: 0 auto; }
-        .card { background: #1e1e1e; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #121212; color: white; padding: 20px; }
+        .container { max-width: 1150px; margin: 0 auto; }
+        .card { background: #1e1e1e; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
         input, select { padding: 10px; margin: 5px; border-radius: 5px; border: 1px solid #333; background: #2b2b2b; color: white; }
-        button { padding: 10px 15px; background: #28a745; border: none; color: white; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .btn-del { background: #dc3545; padding: 5px 10px; }
+        button { padding: 8px 14px; background: #28a745; border: none; color: white; border-radius: 5px; cursor: pointer; font-weight: bold; margin: 2px; }
+        .btn-del { background: #dc3545; }
+        .btn-reset { background: #ffc107; color: black; }
+        .btn-ban { background: #fd7e14; }
+        .btn-unban { background: #17a2b8; }
+        .btn-brutal { background: #dc3545; }
+        .btn-safe { background: #28a745; }
+        .badge { padding: 3px 8px; border-radius: 4px; font-size: 0.85em; font-weight: bold; }
+        .badge-active { background: #28a745; color: white; }
+        .badge-banned { background: #dc3545; color: white; }
+        .badge-brutal { background: #dc3545; color: white; }
+        .badge-safe { background: #28a745; color: white; }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #333; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #333; font-size: 0.95em; }
         th { background: #2b2b2b; }
         .header { display: flex; justify-content: space-between; align-items: center; }
         a.logout { color: #ff5555; text-decoration: none; font-weight: bold; }
+        .flash { background: #28a745; color: white; padding: 10px; border-radius: 5px; margin-bottom: 15px; }
+        .forms-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header card">
-            <h2>User Management Panel</h2>
+            <h2>SC Mod Menu Admin Panel</h2>
             <a href="/admin/logout" class="logout">Logout</a>
         </div>
 
-        <div class="card">
-            <h3>Add New User</h3>
-            <form action="/admin/create_user" method="POST">
-                <input type="text" name="username" placeholder="Username" required>
-                <input type="text" name="password" placeholder="Password" required>
-                <input type="number" name="days" placeholder="Validity (Days)" value="30" min="1" required>
-                <button type="submit">Create User</button>
-            </form>
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for message in messages %}
+              <div class="flash">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <div class="forms-grid">
+            <div class="card">
+                <h3>Add User / Key</h3>
+                <form action="/admin/create_user" method="POST">
+                    <input type="text" name="username" placeholder="Username / Key Name" required><br>
+                    <input type="text" name="password" placeholder="Password" required><br>
+                    <input type="number" name="days" placeholder="Validity (Days)" value="30" min="1" required><br>
+                    <select name="mode">
+                        <option value="safe">🛡️ Safe Mode</option>
+                        <option value="brutal">💀 Brutal Mode</option>
+                    </select><br><br>
+                    <button type="submit">Create User</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h3>Auto-Generate License Keys</h3>
+                <form action="/admin/generate_keys" method="POST">
+                    <input type="number" name="count" placeholder="Number of Keys" value="5" min="1" max="50" required><br>
+                    <input type="number" name="days" placeholder="Validity (Days)" value="30" min="1" required><br>
+                    <select name="mode">
+                        <option value="safe">🛡️ Safe Mode</option>
+                        <option value="brutal">💀 Brutal Mode</option>
+                    </select><br><br>
+                    <button type="submit" style="background:#007bff;">Generate Keys</button>
+                </form>
+            </div>
         </div>
 
         <div class="card">
-            <h3>Registered Users</h3>
+            <h3>Registered Users & Keys</h3>
             <table>
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Username</th>
+                        <th>Username / Key</th>
                         <th>Password</th>
+                        <th>HWID (Device)</th>
+                        <th>Status</th>
+                        <th>Mode</th>
                         <th>Expires At</th>
-                        <th>Action</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -52,16 +94,54 @@
                         <td>{{ user.id }}</td>
                         <td><strong>{{ user.username }}</strong></td>
                         <td>{{ user.password }}</td>
+                        <td>
+                            {% if user.hwid %}
+                                <code style="color:#00ffcc; font-size:0.85em;">{{ user.hwid[:14] }}...</code>
+                            {% else %}
+                                <span style="color:#888; font-style:italic;">Not Bound</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.status == 'active' %}
+                                <span class="badge badge-active">Active</span>
+                            {% else %}
+                                <span class="badge badge-banned">{{ user.status | capitalize }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.mode == 'brutal' %}
+                                <span class="badge badge-brutal">💀 BRUTAL</span>
+                            {% else %}
+                                <span class="badge badge-safe">🛡️ SAFE</span>
+                            {% endif %}
+                        </td>
                         <td>{{ user.expires_at }}</td>
                         <td>
+                            <form action="/admin/reset_hwid/{{ user.id }}" method="POST" style="display:inline;">
+                                <button type="submit" class="btn-reset" title="Clear HWID lock">Reset HWID</button>
+                            </form>
+                            <form action="/admin/toggle_status/{{ user.id }}" method="POST" style="display:inline;">
+                                {% if user.status == 'active' %}
+                                    <button type="submit" class="btn-ban">Ban</button>
+                                {% else %}
+                                    <button type="submit" class="btn-unban">Unban</button>
+                                {% endif %}
+                            </form>
+                            <form action="/admin/set_mode/{{ user.id }}" method="POST" style="display:inline;">
+                                <select name="mode" style="padding:5px; font-size:0.85em;">
+                                    <option value="safe" {% if user.mode != 'brutal' %}selected{% endif %}>🛡️ Safe</option>
+                                    <option value="brutal" {% if user.mode == 'brutal' %}selected{% endif %}>💀 Brutal</option>
+                                </select>
+                                <button type="submit" style="background:#6f42c1;">Set</button>
+                            </form>
                             <form action="/admin/delete_user/{{ user.id }}" method="POST" style="display:inline;">
-                                <button type="submit" class="btn-del" onclick="return confirm('Delete this user?')">Delete</button>
+                                <button type="submit" class="btn-del" onclick="return confirm('Delete this user?')">Del</button>
                             </form>
                         </td>
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="5" style="text-align: center;">No users created yet.</td>
+                        <td colspan="8" style="text-align: center;">No users created yet.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
