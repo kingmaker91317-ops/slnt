@@ -72,18 +72,26 @@ def admin_dashboard():
         users = conn.execute('SELECT * FROM users ORDER BY id DESC').fetchall()
     return render_template('dashboard.html', users=users)
 
-@app.route('/admin/create_user', methods=['POST'])
+@app.route('/admin/create_user', methods=['GET', 'POST'])
 @admin_required
 def create_user():
+    if request.method == 'GET':
+        return redirect(url_for('admin_dashboard'))
+
     username = request.form.get('username', '').strip()
     password = request.form.get('password', '').strip()
-    days = int(request.form.get('days', 30))
+    
+    try:
+        days = int(request.form.get('days', 30))
+    except (ValueError, TypeError):
+        days = 30
 
     if username and password:
         expires_at = (datetime.now() + timedelta(days=days)).strftime('%Y-%m-%d %H:%M:%S')
         created_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
         try:
+            init_db()
             with get_db() as conn:
                 conn.execute(
                     'INSERT INTO users (username, password, expires_at, created_at) VALUES (?, ?, ?, ?)',
@@ -95,12 +103,14 @@ def create_user():
 
     return redirect(url_for('admin_dashboard'))
 
-@app.route('/admin/delete_user/<int:user_id>', methods=['POST'])
+@app.route('/admin/delete_user/<int:user_id>', methods=['GET', 'POST'])
 @admin_required
 def delete_user(user_id):
-    with get_db() as conn:
-        conn.execute('DELETE FROM users WHERE id = ?', (user_id,))
-        conn.commit()
+    if request.method == 'POST':
+        init_db()
+        with get_db() as conn:
+            conn.execute('DELETE FROM users WHERE id = ?', (user_id,))
+            conn.commit()
     return redirect(url_for('admin_dashboard'))
 
 # --- API ROUTE FOR APP VERIFICATION ---
