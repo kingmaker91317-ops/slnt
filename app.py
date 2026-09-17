@@ -1,7 +1,7 @@
 import os
 import sqlite3
 from datetime import datetime, timedelta
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify, send_file, abort
 from functools import wraps
 
 app = Flask(__name__)
@@ -11,6 +11,8 @@ ADMIN_USERNAME = "admin"
 ADMIN_PASSWORD = "adminpassword123"
 
 DATABASE = 'users.db'
+SERVER_DOMAIN = 'silentcheats.xyz'
+APK_FILE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'sc_update.apk')
 
 def get_db():
     conn = sqlite3.connect(DATABASE)
@@ -117,9 +119,9 @@ def delete_user(user_id):
 
 @app.route('/api/login', methods=['POST'])
 def api_login():
-    data = request.get_json(silent=True) or request.form
-    username = data.get('username')
-    password = data.get('password')
+    data = request.get_json(silent=True) or request.form or {}
+    username = (data.get('username') or '').strip()
+    password = (data.get('password') or '').strip()
 
     if not username or not password:
         return jsonify({"status": "error", "message": "Missing credentials"}), 400
@@ -140,10 +142,33 @@ def api_login():
     return jsonify({
         "status": "success",
         "message": "Access Granted",
+        "expires": user['expires_at'],
+        "expires_at": user['expires_at'],
+        "username": user['username'],
         "user": {
             "username": user['username'],
+            "expires": user['expires_at'],
             "expires_at": user['expires_at']
-        }
+        },
+        "server": f"https://{SERVER_DOMAIN}"
+    }), 200
+
+
+# --- APK DOWNLOAD ROUTE (silentcheats.xyz/sc_update.apk) ---
+
+@app.route('/sc_update.apk', methods=['GET'])
+def download_apk():
+    if not os.path.exists(APK_FILE_PATH):
+        abort(404)
+    return send_file(APK_FILE_PATH, as_attachment=True, download_name='sc_update.apk')
+
+
+@app.route('/api/update', methods=['GET'])
+def api_update():
+    return jsonify({
+        "status": "success",
+        "update_url": f"https://{SERVER_DOMAIN}/sc_update.apk",
+        "version": "1.0.0"
     }), 200
 
 if __name__ == '__main__':
