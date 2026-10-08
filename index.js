@@ -10,8 +10,13 @@ app.use(cors());
 const PORT = process.env.PORT || 3000;
 
 // Persistent JSON Storage Path
-const KEYS_FILE = path.join(__dirname, 'keys.json');
-const WALLET_FILE = path.join(__dirname, 'wallet.json');
+const KEYS_FILE = fs.existsSync(path.join(__dirname, 'src', 'keys.json'))
+  ? path.join(__dirname, 'src', 'keys.json')
+  : path.join(__dirname, 'keys.json');
+
+const WALLET_FILE = fs.existsSync(path.join(__dirname, 'src', 'wallet.json'))
+  ? path.join(__dirname, 'src', 'wallet.json')
+  : path.join(__dirname, 'wallet.json');
 
 // Helper to Load JSON File safely
 function loadJSON(filePath, defaultData) {
