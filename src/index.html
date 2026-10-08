@@ -835,7 +835,7 @@
                 <button class="btn btn-sm ${k.active ? 'btn-outline-warning' : 'btn-outline-success'} me-1 rounded-2 space-font" onclick="toggleBlockKey('${k.key}')"><i class="bi ${k.active ? 'bi-slash-circle' : 'bi-check-circle'} me-1"></i>${k.active ? 'Block' : 'Unblock'}</button>
                 <button class="btn btn-sm btn-outline-primary me-1 rounded-2 space-font" onclick="addDaysToKey('${k.key}')"><i class="bi bi-calendar-plus me-1"></i>+ Days</button>
                 <button class="btn btn-sm btn-outline-secondary me-1 rounded-2 space-font" onclick="resetHwid('${k.key}')">HWID Reset</button>
-                <button class="btn btn-sm btn-outline-danger rounded-2 space-font" onclick="revokeKey('${k.key}')">Revoke</button>
+                <button class="btn btn-sm btn-outline-danger rounded-2 space-font" onclick="deleteKey('${k.key}')"><i class="bi bi-trash me-1"></i>Delete</button>
               </td>
             </tr>
           `;
@@ -1003,6 +1003,22 @@
         body: JSON.stringify({ key })
       });
       loadKeys();
+    }
+
+    async function deleteKey(key) {
+      if (!confirm(`Permanently delete key ${key} from database? This action cannot be undone.`)) return;
+      const res = await fetch('/admin/delete-key', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-secret': currentAdminSecret },
+        body: JSON.stringify({ key })
+      });
+      const data = await res.json();
+      if (data.status === 'success') {
+        loadKeys();
+        loadStats();
+      } else {
+        alert('Failed to delete key: ' + data.message);
+      }
     }
 
     async function revokeKey(key) {

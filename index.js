@@ -307,6 +307,17 @@ app.post('/admin/reset-hwid', adminAuth, (req, res) => {
   res.json({ status: 'success', message: 'HWID reset done' });
 });
 
+// POST /admin/delete-key — Permanently Delete Key from Database
+app.post('/admin/delete-key', adminAuth, (req, res) => {
+  const { key } = req.body;
+  if (!keys[key]) return res.status(404).json({ status: 'error', message: 'Key not found' });
+  
+  delete keys[key];
+  saveJSON(KEYS_FILE, keys);
+  
+  res.json({ status: 'success', message: 'Key deleted permanently' });
+});
+
 // POST /admin/import-keys — Import / Restore Keys Backup
 app.post('/admin/import-keys', adminAuth, (req, res) => {
   const { importedKeys } = req.body;
