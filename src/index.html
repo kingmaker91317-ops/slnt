@@ -3,21 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ANGRY MOD - Executive Reseller Dashboard</title>
-  <!-- Google Fonts & Icons -->
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <title>ANGRY MOD - NextGen Cyberpunk Panel</title>
+  
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
   
   <style>
     :root {
-      --bg-dark: #090d16;
-      --card-bg: rgba(18, 24, 38, 0.75);
-      --card-border: rgba(255, 255, 255, 0.08);
-      --accent-purple: #8b5cf6;
-      --accent-pink: #ec4899;
-      --accent-blue: #3b82f6;
-      --accent-cyan: #06b6d4;
+      --bg-dark: #05070f;
+      --card-bg: rgba(13, 18, 30, 0.85);
+      --card-border: rgba(139, 92, 246, 0.2);
+      --neon-purple: #a855f7;
+      --neon-cyan: #06b6d4;
+      --neon-pink: #ec4899;
+      --neon-amber: #f59e0b;
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
     }
@@ -25,132 +26,144 @@
     body {
       background-color: var(--bg-dark);
       background-image: 
-        radial-gradient(circle at 15% 15%, rgba(139, 92, 246, 0.15) 0%, transparent 40%),
-        radial-gradient(circle at 85% 85%, rgba(236, 72, 153, 0.12) 0%, transparent 40%);
+        radial-gradient(circle at 10% 20%, rgba(168, 85, 247, 0.18) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(6, 182, 212, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.1) 0%, transparent 50%);
       background-attachment: fixed;
       color: var(--text-main);
       font-family: 'Plus Jakarta Sans', sans-serif;
       min-height: 100vh;
+      overflow-x: hidden;
     }
 
-    /* Glassmorphic Cards */
-    .glass-card {
+    .space-font { font-family: 'Space Grotesk', sans-serif; }
+
+    /* Animated Grid Background Accent */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                  linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container-xl { position: relative; z-index: 1; }
+
+    /* Neon Glassmorphic Cards */
+    .cyber-card {
       background: var(--card-bg);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border: 1px solid var(--card-border);
-      border-radius: 20px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 24px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
-    .glass-card:hover {
-      border-color: rgba(255, 255, 255, 0.15);
-      box-shadow: 0 25px 50px rgba(139, 92, 246, 0.15);
+    .cyber-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      border-color: rgba(168, 85, 247, 0.5);
+      box-shadow: 0 20px 40px rgba(168, 85, 247, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2);
     }
 
-    /* Header Styling */
-    .brand-title {
+    /* Glow Text Branding */
+    .brand-glow {
       font-weight: 800;
-      background: linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #3b82f6 100%);
+      background: linear-gradient(135deg, #c084fc 0%, #f472b6 50%, #38bdf8 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      letter-spacing: -0.5px;
+      filter: drop-shadow(0 0 15px rgba(192, 132, 252, 0.4));
+      letter-spacing: -1px;
     }
 
-    .wallet-card {
-      background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
-      border: 1px solid rgba(139, 92, 246, 0.3);
-      border-radius: 16px;
-      padding: 10px 20px;
+    /* Wallet Pill Header */
+    .wallet-box {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      border-radius: 20px;
+      padding: 12px 24px;
+      box-shadow: 0 0 20px rgba(245, 158, 11, 0.15);
     }
 
-    /* Pricing Plan Cards */
-    .plan-card {
-      position: relative;
-      overflow: hidden;
-      padding: 24px;
-    }
-
-    .plan-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; width: 100%; height: 4px;
-      background: linear-gradient(90deg, var(--accent-purple), var(--accent-pink));
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-
-    .plan-card:hover::before {
-      opacity: 1;
-    }
-
-    .plan-badge {
-      background: rgba(139, 92, 246, 0.15);
-      color: #c084fc;
-      border: 1px solid rgba(139, 92, 246, 0.3);
-      font-weight: 600;
-      font-size: 0.85rem;
-      padding: 6px 14px;
-      border-radius: 30px;
-    }
-
-    .btn-buy {
-      background: linear-gradient(135deg, #7c3aed 0%, #c026d3 100%);
+    /* Vibrant Buttons */
+    .btn-neon {
+      background: linear-gradient(135deg, #9333ea 0%, #db2777 100%);
       border: none;
       color: #fff;
       font-weight: 700;
-      border-radius: 12px;
-      padding: 12px;
+      border-radius: 14px;
+      padding: 14px;
+      letter-spacing: 0.5px;
       transition: all 0.3s ease;
-      box-shadow: 0 8px 20px rgba(124, 58, 237, 0.3);
+      box-shadow: 0 10px 25px rgba(147, 51, 234, 0.4);
     }
 
-    .btn-buy:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 25px rgba(192, 38, 211, 0.4);
+    .btn-neon:hover {
+      background: linear-gradient(135deg, #a855f7 0%, #f472b6 100%);
+      box-shadow: 0 15px 30px rgba(219, 39, 119, 0.6);
       color: #fff;
+      transform: scale(1.02);
     }
 
-    /* Key Alert Box */
-    .key-alert {
-      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(6, 182, 212, 0.1));
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      border-radius: 16px;
-    }
-
-    .table-custom {
-      --bs-table-bg: transparent;
-      --bs-table-color: var(--text-main);
-      margin-bottom: 0;
-    }
-
-    .table-custom th {
-      color: var(--text-muted);
-      font-size: 0.8rem;
+    .plan-badge {
+      font-size: 0.75rem;
       text-transform: uppercase;
       letter-spacing: 1px;
-      border-bottom: 1px solid var(--card-border);
-      padding: 16px;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 30px;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(5px);
     }
 
-    .table-custom td {
-      padding: 16px;
-      vertical-align: middle;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    /* Glowing Price Text */
+    .price-tag {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #ffffff;
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
     }
 
-    .key-text {
-      font-family: monospace;
-      letter-spacing: 1px;
-      color: #facc15;
-    }
-
-    /* Modal Styling */
-    .modal-content {
-      background: #111827;
-      border: 1px solid var(--card-border);
+    .key-alert {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(6, 182, 212, 0.15));
+      border: 1px solid rgba(16, 185, 129, 0.4);
       border-radius: 20px;
+      box-shadow: 0 0 30px rgba(16, 185, 129, 0.2);
+    }
+
+    .table-cyber {
+      --bs-table-bg: transparent;
+      --bs-table-color: var(--text-main);
+      margin: 0;
+    }
+
+    .table-cyber th {
+      color: #a78bfa;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      padding: 18px 20px;
+      border-bottom: 1px solid rgba(168, 85, 247, 0.2);
+    }
+
+    .table-cyber td {
+      padding: 18px 20px;
+      vertical-align: middle;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .key-display {
+      font-family: 'Space Grotesk', monospace;
+      font-weight: 700;
+      color: #facc15;
+      letter-spacing: 1px;
+      background: rgba(250, 204, 21, 0.1);
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1px dashed rgba(250, 204, 21, 0.3);
     }
   </style>
 </head>
@@ -158,131 +171,134 @@
 
   <div class="container-xl">
     
-    <!-- Top Header -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-5">
+    <!-- Top Header Navigation -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-4 mb-5">
       <div>
-        <h1 class="brand-title display-6 m-0"><i class="bi bi-cpu-fill text-purple me-2"></i>ANGRY MOD EXECUTIVE</h1>
-        <p class="text-muted small m-0 mt-1">Premium Reseller Control Panel & Key Manager</p>
+        <div class="d-flex align-items-center gap-2">
+          <span class="badge bg-purple bg-opacity-20 text-purple border border-purple px-3 py-1 rounded-pill small">V3.0 ONLINE PROXY</span>
+        </div>
+        <h1 class="brand-glow space-font display-5 m-0 mt-2"><i class="bi bi-shield-lock-fill text-purple me-2"></i>ANGRY MOD CYBER</h1>
+        <p class="text-muted m-0 mt-1">High-Speed License Key Generator & Reseller Engine</p>
       </div>
 
       <div class="d-flex align-items-center gap-3">
-        <div class="wallet-card d-flex align-items-center gap-3">
-          <div class="rounded-circle p-2 bg-warning bg-opacity-10 text-warning">
-            <i class="bi bi-wallet2 fs-4"></i>
+        <div class="wallet-box d-flex align-items-center gap-3">
+          <div class="rounded-circle p-2 bg-warning bg-opacity-20 text-warning">
+            <i class="bi bi-wallet2 fs-3"></i>
           </div>
           <div>
-            <div class="text-muted small fw-semibold">RESELLER BALANCE</div>
-            <div class="fw-bold text-success fs-4">₹<span id="walletBalance">0</span></div>
+            <div class="text-muted small fw-bold space-font">RESELLER BALANCE</div>
+            <div class="fw-extrabold text-success fs-3 space-font">₹<span id="walletBalance">0</span></div>
           </div>
         </div>
 
-        <button class="btn btn-outline-warning rounded-3 py-2 px-3 fw-semibold" data-bs-toggle="modal" data-bs-target="#addFundsModal">
-          <i class="bi bi-plus-circle-fill me-1"></i> Add Funds
+        <button class="btn btn-outline-warning rounded-4 py-3 px-4 fw-bold space-font" data-bs-toggle="modal" data-bs-target="#addFundsModal">
+          <i class="bi bi-plus-lg me-1"></i> ADD FUNDS
         </button>
       </div>
     </div>
 
-    <!-- Pricing Cards Section (7 Complete Plans) -->
+    <!-- Pricing Cards Section -->
     <div class="row g-4 mb-5">
       
       <!-- 5 Hours Trial -->
-      <div class="col-md-4 col-lg-3">
-        <div class="glass-card plan-card text-center h-100 d-flex flex-column justify-content-between">
+      <div class="col-md-4 col-lg-4">
+        <div class="cyber-card p-4 text-center h-100 d-flex flex-column justify-content-between">
           <div>
             <div class="d-flex justify-content-between align-items-center mb-3">
-              <span class="plan-badge text-warning border-warning"><i class="bi bi-stopwatch me-1"></i> Quick Trial</span>
-              <i class="bi bi-stopwatch-fill text-warning fs-5"></i>
+              <span class="plan-badge text-warning border border-warning"><i class="bi bi-lightning-charge me-1"></i> Fast Trial</span>
+              <i class="bi bi-clock-history text-warning fs-4"></i>
             </div>
-            <h4 class="fw-bold mb-1">5 Hours Trial</h4>
-            <div class="display-6 fw-extrabold text-white my-3">₹10 <span class="fs-6 text-muted fw-normal">/ key</span></div>
+            <h3 class="space-font fw-bold mb-1">5 Hours Trial</h3>
+            <div class="price-tag my-3 space-font">₹10 <span class="fs-6 text-muted fw-normal">/ key</span></div>
           </div>
-          <button class="btn btn-buy w-100" onclick="buyKey(0.2, 10)">
-            <i class="bi bi-cart-plus-fill me-2"></i>Generate 5H Key
+          <button class="btn btn-neon space-font w-100 mt-3" onclick="buyKey(0.2, 10)">
+            <i class="bi bi-lightning-fill me-2"></i>GENERATE 5H KEY
           </button>
         </div>
       </div>
 
       <!-- 1 Day Plan -->
-      <div class="col-md-4 col-lg-3">
-        <div class="glass-card plan-card text-center h-100 d-flex flex-column justify-content-between">
+      <div class="col-md-4 col-lg-4">
+        <div class="cyber-card p-4 text-center h-100 d-flex flex-column justify-content-between">
           <div>
             <div class="d-flex justify-content-between align-items-center mb-3">
-              <span class="plan-badge"><i class="bi bi-clock-history me-1"></i> Daily Pass</span>
-              <i class="bi bi-lightning-charge-fill text-warning fs-5"></i>
+              <span class="plan-badge text-purple border border-purple" style="color:#c084fc; border-color: rgba(192, 132, 252, 0.4);"><i class="bi bi-calendar-day me-1"></i> 24H Pass</span>
+              <i class="bi bi-fire text-purple fs-4" style="color:#c084fc;"></i>
             </div>
-            <h4 class="fw-bold mb-1">1 Day Key</h4>
-            <div class="display-6 fw-extrabold text-white my-3">₹20 <span class="fs-6 text-muted fw-normal">/ key</span></div>
+            <h3 class="space-font fw-bold mb-1">1 Day Key</h3>
+            <div class="price-tag my-3 space-font">₹20 <span class="fs-6 text-muted fw-normal">/ key</span></div>
           </div>
-          <button class="btn btn-buy w-100" onclick="buyKey(1, 20)">
-            <i class="bi bi-cart-plus-fill me-2"></i>Generate 1 Day Key
+          <button class="btn btn-neon space-font w-100 mt-3" onclick="buyKey(1, 20)">
+            <i class="bi bi-key-fill me-2"></i>GENERATE 1 DAY KEY
           </button>
         </div>
       </div>
 
       <!-- 3 Days Plan -->
-      <div class="col-md-4 col-lg-3">
-        <div class="glass-card plan-card text-center h-100 d-flex flex-column justify-content-between">
+      <div class="col-md-4 col-lg-4">
+        <div class="cyber-card p-4 text-center h-100 d-flex flex-column justify-content-between">
           <div>
             <div class="d-flex justify-content-between align-items-center mb-3">
-              <span class="plan-badge"><i class="bi bi-calendar3 me-1"></i> Standard Pass</span>
-              <i class="bi bi-fire text-danger fs-5"></i>
+              <span class="plan-badge text-danger border border-danger"><i class="bi bi-star-fill me-1"></i> Popular</span>
+              <i class="bi bi-controller text-danger fs-4"></i>
             </div>
-            <h4 class="fw-bold mb-1">3 Days Key</h4>
-            <div class="display-6 fw-extrabold text-white my-3">₹50 <span class="fs-6 text-muted fw-normal">/ key</span></div>
+            <h3 class="space-font fw-bold mb-1">3 Days Key</h3>
+            <div class="price-tag my-3 space-font">₹50 <span class="fs-6 text-muted fw-normal">/ key</span></div>
           </div>
-          <button class="btn btn-buy w-100" onclick="buyKey(3, 50)">
-            <i class="bi bi-cart-plus-fill me-2"></i>Generate 3 Days Key
+          <button class="btn btn-neon space-font w-100 mt-3" onclick="buyKey(3, 50)">
+            <i class="bi bi-key-fill me-2"></i>GENERATE 3 DAYS KEY
           </button>
         </div>
       </div>
 
       <!-- 7 Days Plan -->
-      <div class="col-md-4 col-lg-3">
-        <div class="glass-card plan-card text-center h-100 d-flex flex-column justify-content-between">
+      <div class="col-md-4 col-lg-4">
+        <div class="cyber-card p-4 text-center h-100 d-flex flex-column justify-content-between">
           <div>
             <div class="d-flex justify-content-between align-items-center mb-3">
-              <span class="plan-badge"><i class="bi bi-shield-check me-1"></i> VIP Weekly</span>
-              <i class="bi bi-gem text-info fs-5"></i>
+              <span class="plan-badge text-info border border-info"><i class="bi bi-gem me-1"></i> VIP Weekly</span>
+              <i class="bi bi-gem text-info fs-4"></i>
             </div>
-            <h4 class="fw-bold mb-1">7 Days Key</h4>
-            <div class="display-6 fw-extrabold text-white my-3">₹300 <span class="fs-6 text-muted fw-normal">/ key</span></div>
+            <h3 class="space-font fw-bold mb-1">7 Days Key</h3>
+            <div class="price-tag my-3 space-font">₹300 <span class="fs-6 text-muted fw-normal">/ key</span></div>
           </div>
-          <button class="btn btn-buy w-100" onclick="buyKey(7, 300)">
-            <i class="bi bi-cart-plus-fill me-2"></i>Generate 7 Days Key
+          <button class="btn btn-neon space-font w-100 mt-3" onclick="buyKey(7, 300)">
+            <i class="bi bi-shield-lock-fill me-2"></i>GENERATE 7 DAYS KEY
           </button>
         </div>
       </div>
 
       <!-- 15 Days Plan -->
-      <div class="col-md-6 col-lg-6">
-        <div class="glass-card plan-card text-center h-100 d-flex flex-column justify-content-between">
+      <div class="col-md-4 col-lg-4">
+        <div class="cyber-card p-4 text-center h-100 d-flex flex-column justify-content-between">
           <div>
             <div class="d-flex justify-content-between align-items-center mb-3">
-              <span class="plan-badge text-success border-success"><i class="bi bi-star-fill me-1"></i> Half-Month Pro</span>
-              <i class="bi bi-star-fill text-success fs-5"></i>
+              <span class="plan-badge text-success border border-success"><i class="bi bi-award-fill me-1"></i> Half-Month</span>
+              <i class="bi bi-award-fill text-success fs-4"></i>
             </div>
-            <h4 class="fw-bold mb-1">15 Days Key</h4>
-            <div class="display-6 fw-extrabold text-white my-3">₹550 <span class="fs-6 text-muted fw-normal">/ key</span></div>
+            <h3 class="space-font fw-bold mb-1">15 Days Key</h3>
+            <div class="price-tag my-3 space-font">₹550 <span class="fs-6 text-muted fw-normal">/ key</span></div>
           </div>
-          <button class="btn btn-buy w-100" onclick="buyKey(15, 550)">
-            <i class="bi bi-cart-plus-fill me-2"></i>Generate 15 Days Key
+          <button class="btn btn-neon space-font w-100 mt-3" onclick="buyKey(15, 550)">
+            <i class="bi bi-shield-lock-fill me-2"></i>GENERATE 15 DAYS KEY
           </button>
         </div>
       </div>
 
       <!-- 30 Days Monthly Plan -->
-      <div class="col-md-6 col-lg-6">
-        <div class="glass-card plan-card text-center h-100 d-flex flex-column justify-content-between">
+      <div class="col-md-4 col-lg-4">
+        <div class="cyber-card p-4 text-center h-100 d-flex flex-column justify-content-between" style="border-color: rgba(6, 182, 212, 0.4);">
           <div>
             <div class="d-flex justify-content-between align-items-center mb-3">
-              <span class="plan-badge text-cyan border-cyan"><i class="bi bi-rocket-takeoff-fill me-1"></i> Monthly Ultimate</span>
-              <i class="bi bi-rocket-takeoff-fill text-cyan fs-5"></i>
+              <span class="plan-badge text-cyan border border-cyan" style="color:#22d3ee;"><i class="bi bi-rocket-takeoff-fill me-1"></i> Ultimate Monthly</span>
+              <i class="bi bi-rocket-takeoff-fill text-cyan fs-4" style="color:#22d3ee;"></i>
             </div>
-            <h4 class="fw-bold mb-1">30 Days Monthly</h4>
-            <div class="display-6 fw-extrabold text-white my-3">₹999 <span class="fs-6 text-muted fw-normal">/ key</span></div>
+            <h3 class="space-font fw-bold mb-1 text-cyan" style="color:#22d3ee;">30 Days Monthly</h3>
+            <div class="price-tag my-3 space-font">₹999 <span class="fs-6 text-muted fw-normal">/ key</span></div>
           </div>
-          <button class="btn btn-buy w-100" onclick="buyKey(30, 999)">
-            <i class="bi bi-cart-plus-fill me-2"></i>Generate 30 Days Key
+          <button class="btn btn-neon space-font w-100 mt-3" style="background: linear-gradient(135deg, #0891b2 0%, #7c3aed 100%);" onclick="buyKey(30, 999)">
+            <i class="bi bi-rocket-fill me-2"></i>GENERATE 30 DAYS KEY
           </button>
         </div>
       </div>
@@ -290,30 +306,30 @@
     </div>
 
     <!-- Alert Box for Newly Generated Key -->
-    <div id="keyAlert" class="glass-card key-alert p-4 mb-5 d-none">
+    <div id="keyAlert" class="cyber-card key-alert p-4 mb-5 d-none">
       <div class="d-flex align-items-center justify-content-between mb-2">
-        <div class="fw-bold text-success"><i class="bi bi-check-circle-fill me-2"></i>KEY GENERATED & ACTIVATED</div>
+        <div class="fw-bold text-success space-font fs-5"><i class="bi bi-check-circle-fill me-2"></i>LICENSE KEY ACTIVATED</div>
         <button class="btn-close btn-close-white" onclick="document.getElementById('keyAlert').classList.add('d-none')"></button>
       </div>
-      <div class="d-flex flex-column flex-md-row gap-2 mt-3">
-        <input type="text" id="generatedKeyText" class="form-control bg-dark border-secondary text-warning fw-bold fs-4 py-2 px-3" readonly>
-        <button class="btn btn-success px-4 fw-bold rounded-3" onclick="copyKey()"><i class="bi bi-copy me-2"></i>Copy Key</button>
+      <div class="d-flex flex-column flex-md-row gap-3 mt-3">
+        <input type="text" id="generatedKeyText" class="form-control bg-dark border-secondary text-warning fw-bold fs-3 space-font py-2 px-3" readonly>
+        <button class="btn btn-success px-4 fw-bold space-font rounded-3" onclick="copyKey()"><i class="bi bi-copy me-2"></i>COPY KEY</button>
       </div>
     </div>
 
     <!-- Active Keys Data Table -->
-    <div class="glass-card p-4">
+    <div class="cyber-card p-4">
       <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4 class="fw-bold m-0"><i class="bi bi-key-fill text-warning me-2"></i>Generated Keys Registry</h4>
-        <button class="btn btn-sm btn-outline-light rounded-3 px-3" onclick="loadKeys()"><i class="bi bi-arrow-clockwise me-1"></i> Refresh List</button>
+        <h4 class="space-font fw-bold m-0"><i class="bi bi-cpu-fill text-purple me-2"></i>Generated Keys Database</h4>
+        <button class="btn btn-sm btn-outline-light rounded-3 px-3 space-font" onclick="loadKeys()"><i class="bi bi-arrow-clockwise me-1"></i> Refresh Data</button>
       </div>
 
       <div class="table-responsive">
-        <table class="table table-custom">
+        <table class="table table-cyber">
           <thead>
             <tr>
               <th>License Key</th>
-              <th>Customer</th>
+              <th>User Name</th>
               <th>Duration</th>
               <th>HWID Lock Status</th>
               <th>Expiration Date</th>
@@ -322,7 +338,7 @@
             </tr>
           </thead>
           <tbody id="keysTableBody">
-            <tr><td colspan="7" class="text-center text-muted py-4">Fetching active keys...</td></tr>
+            <tr><td colspan="7" class="text-center text-muted py-4">Fetching live database...</td></tr>
           </tbody>
         </table>
       </div>
@@ -333,18 +349,18 @@
   <!-- Add Funds Modal -->
   <div class="modal fade" id="addFundsModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content p-3">
+      <div class="modal-content p-3" style="background:#0b0f19; border:1px solid rgba(245, 158, 11, 0.3);">
         <div class="modal-header border-bottom border-secondary">
-          <h5 class="modal-title fw-bold"><i class="bi bi-plus-circle text-warning me-2"></i>Add Reseller Wallet Credits</h5>
+          <h5 class="modal-title fw-bold space-font"><i class="bi bi-wallet2 text-warning me-2"></i>Add Credits to Reseller Wallet</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body py-4">
-          <label class="form-label fw-semibold text-muted">Amount to Add (₹)</label>
-          <input type="number" id="addAmountInput" class="form-control bg-dark border-secondary text-white py-2 fs-5" value="500">
+          <label class="form-label fw-semibold text-muted space-font">Deposit Amount (₹)</label>
+          <input type="number" id="addAmountInput" class="form-control bg-dark border-secondary text-white py-2 fs-4 space-font" value="500">
         </div>
         <div class="modal-footer border-top border-secondary">
-          <button type="button" class="btn btn-secondary rounded-3" data-bs-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-success rounded-3 px-4" onclick="addFunds()">Confirm Deposit</button>
+          <button type="button" class="btn btn-secondary rounded-3 space-font" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-warning rounded-3 px-4 fw-bold space-font" onclick="addFunds()">Deposit Balance</button>
         </div>
       </div>
     </div>
@@ -381,7 +397,7 @@
     }
 
     async function buyKey(days, price) {
-      const username = prompt(`Enter Customer Name / ID for ${days === -1 ? 'Lifetime' : (days < 1 ? '5 Hours' : days + ' Day')} Key:`, `User_${Math.floor(Math.random()*1000)}`);
+      const username = prompt(`Enter Customer Name / User ID:`, `User_${Math.floor(Math.random()*1000)}`);
       if (!username) return;
 
       const res = await fetch('/admin/generate', {
@@ -410,18 +426,18 @@
 
         if (data.status === 'success' && data.keys.length > 0) {
           data.keys.forEach(k => {
-            const formatDays = k.days === -1 ? 'Lifetime' : (k.days === 0.2 ? '5 Hours' : k.days + ' Days');
+            const formatDays = k.days === 0.2 ? '5 Hours' : k.days + ' Days';
             tbody.innerHTML += `
               <tr>
-                <td class="fw-bold key-text">${k.key}</td>
-                <td>${k.user}</td>
-                <td><span class="badge bg-purple bg-opacity-20 text-purple border border-purple">${formatDays}</span></td>
-                <td><span class="badge ${k.hwid === 'Not bound' ? 'bg-info bg-opacity-10 text-info border border-info' : 'bg-success bg-opacity-10 text-success border border-success'}">${k.hwid}</span></td>
-                <td class="small text-muted">${k.expires === 'Lifetime' ? 'Never' : new Date(k.expires).toLocaleString()}</td>
-                <td><span class="badge ${k.active && !k.expired ? 'bg-success' : 'bg-danger'}">${k.expired ? 'Expired' : (k.active ? 'Active' : 'Revoked')}</span></td>
+                <td><span class="key-display">${k.key}</span></td>
+                <td class="fw-semibold">${k.user}</td>
+                <td><span class="badge bg-purple bg-opacity-20 text-purple border border-purple space-font">${formatDays}</span></td>
+                <td><span class="badge ${k.hwid === 'Not bound' ? 'bg-info bg-opacity-10 text-info border border-info' : 'bg-success bg-opacity-10 text-success border border-success'} space-font">${k.hwid}</span></td>
+                <td class="small text-muted space-font">${new Date(k.expires).toLocaleString()}</td>
+                <td><span class="badge ${k.active && !k.expired ? 'bg-success' : 'bg-danger'} space-font">${k.expired ? 'Expired' : (k.active ? 'Active' : 'Revoked')}</span></td>
                 <td>
-                  <button class="btn btn-sm btn-outline-warning me-1 rounded-2" onclick="resetHwid('${k.key}')">Reset HWID</button>
-                  <button class="btn btn-sm btn-outline-danger rounded-2" onclick="revokeKey('${k.key}')">Revoke</button>
+                  <button class="btn btn-sm btn-outline-warning me-1 rounded-2 space-font" onclick="resetHwid('${k.key}')">Reset HWID</button>
+                  <button class="btn btn-sm btn-outline-danger rounded-2 space-font" onclick="revokeKey('${k.key}')">Revoke</button>
                 </td>
               </tr>
             `;
