@@ -1,0 +1,11 @@
+{
+  "AM-OZ4B-E314-5CRW": {
+    "user": "test_persistent_user",
+    "days": 1,
+    "price": 20,
+    "expiresAt": 1791544724034,
+    "active": true,
+    "hwid": null,
+    "createdAt": 1791458324034
+  }
+}

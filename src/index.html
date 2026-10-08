@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ANGRY MOD - Executive Reseller Dashboard</title>
+  <!-- Google Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
+  
+  <style>
+    :root {
+      --bg-dark: #090d16;
+      --card-bg: rgba(18, 24, 38, 0.75);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --accent-purple: #8b5cf6;
+      --accent-pink: #ec4899;
+      --accent-blue: #3b82f6;
+      --accent-cyan: #06b6d4;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(139, 92, 246, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(236, 72, 153, 0.12) 0%, transparent 40%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+    }
+
+    /* Glassmorphic Cards */
+    .glass-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .glass-card:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 25px 50px rgba(139, 92, 246, 0.15);
+    }
+
+    /* Header Styling */
+    .brand-title {
+      font-weight: 800;
+      background: linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #3b82f6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+    }
+
+    .wallet-card {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      border-radius: 16px;
+      padding: 10px 20px;
+    }
+
+    /* Pricing Plan Cards */
+    .plan-card {
+      position: relative;
+      overflow: hidden;
+      padding: 24px;
+    }
+
+    .plan-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 4px;
+      background: linear-gradient(90deg, var(--accent-purple), var(--accent-pink));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .plan-card:hover::before {
+      opacity: 1;
+    }
+
+    .plan-badge {
+      background: rgba(139, 92, 246, 0.15);
+      color: #c084fc;
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      font-weight: 600;
+      font-size: 0.85rem;
+      padding: 6px 14px;
+      border-radius: 30px;
+    }
+
+    .btn-buy {
+      background: linear-gradient(135deg, #7c3aed 0%, #c026d3 100%);
+      border: none;
+      color: #fff;
+      font-weight: 700;
+      border-radius: 12px;
+      padding: 12px;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 20px rgba(124, 58, 237, 0.3);
+    }
+
+    .btn-buy:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 25px rgba(192, 38, 211, 0.4);
+      color: #fff;
+    }
+
+    /* Key Alert Box */
+    .key-alert {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(6, 182, 212, 0.1));
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 16px;
+    }
+
+    .table-custom {
+      --bs-table-bg: transparent;
+      --bs-table-color: var(--text-main);
+      margin-bottom: 0;
+    }
+
+    .table-custom th {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-bottom: 1px solid var(--card-border);
+      padding: 16px;
+    }
+
+    .table-custom td {
+      padding: 16px;
+      vertical-align: middle;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .key-text {
+      font-family: monospace;
+      letter-spacing: 1px;
+      color: #facc15;
+    }
+
+    /* Modal Styling */
+    .modal-content {
+      background: #111827;
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+    }
+  </style>
+</head>
+<body class="p-3 p-md-5">
+
+  <div class="container-xl">
+    
+    <!-- Top Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-5">
+      <div>
+        <h1 class="brand-title display-6 m-0"><i class="bi bi-cpu-fill text-purple me-2"></i>ANGRY MOD EXECUTIVE</h1>
+        <p class="text-muted small m-0 mt-1">Premium Reseller Control Panel & Key Manager</p>
+      </div>
+
+      <div class="d-flex align-items-center gap-3">
+        <div class="wallet-card d-flex align-items-center gap-3">
+          <div class="rounded-circle p-2 bg-warning bg-opacity-10 text-warning">
+            <i class="bi bi-wallet2 fs-4"></i>
+          </div>
+          <div>
+            <div class="text-muted small fw-semibold">RESELLER BALANCE</div>
+            <div class="fw-bold text-success fs-4">₹<span id="walletBalance">0</span></div>
+          </div>
+        </div>
+
+        <button class="btn btn-outline-warning rounded-3 py-2 px-3 fw-semibold" data-bs-toggle="modal" data-bs-target="#addFundsModal">
+          <i class="bi bi-plus-circle-fill me-1"></i> Add Funds
+        </button>
+      </div>
+    </div>
+
+    <!-- Pricing Cards Section (7 Complete Plans) -->
+    <div class="row g-4 mb-5">
+      
+      <!-- 5 Hours Trial -->
+      <div class="col-md-4 col-lg-3">
+        <div class="glass-card plan-card text-center h-100 d-flex flex-column justify-content-between">
+          <div>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span class="plan-badge text-warning border-warning"><i class="bi bi-stopwatch me-1"></i> Quick Trial</span>
+              <i class="bi bi-stopwatch-fill text-warning fs-5"></i>
+            </div>
+            <h4 class="fw-bold mb-1">5 Hours Trial</h4>
+            <div class="display-6 fw-extrabold text-white my-3">₹10 <span class="fs-6 text-muted fw-normal">/ key</span></div>
+          </div>
+          <button class="btn btn-buy w-100" onclick="buyKey(0.2, 10)">
+            <i class="bi bi-cart-plus-fill me-2"></i>Generate 5H Key
+          </button>
+        </div>
+      </div>
+
+      <!-- 1 Day Plan -->
+      <div class="col-md-4 col-lg-3">
+        <div class="glass-card plan-card text-center h-100 d-flex flex-column justify-content-between">
+          <div>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span class="plan-badge"><i class="bi bi-clock-history me-1"></i> Daily Pass</span>
+              <i class="bi bi-lightning-charge-fill text-warning fs-5"></i>
+            </div>
+            <h4 class="fw-bold mb-1">1 Day Key</h4>
+            <div class="display-6 fw-extrabold text-white my-3">₹20 <span class="fs-6 text-muted fw-normal">/ key</span></div>
+          </div>
+          <button class="btn btn-buy w-100" onclick="buyKey(1, 20)">
+            <i class="bi bi-cart-plus-fill me-2"></i>Generate 1 Day Key
+          </button>
+        </div>
+      </div>
+
+      <!-- 3 Days Plan -->
+      <div class="col-md-4 col-lg-3">
+        <div class="glass-card plan-card text-center h-100 d-flex flex-column justify-content-between">
+          <div>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span class="plan-badge"><i class="bi bi-calendar3 me-1"></i> Standard Pass</span>
+              <i class="bi bi-fire text-danger fs-5"></i>
+            </div>
+            <h4 class="fw-bold mb-1">3 Days Key</h4>
+            <div class="display-6 fw-extrabold text-white my-3">₹50 <span class="fs-6 text-muted fw-normal">/ key</span></div>
+          </div>
+          <button class="btn btn-buy w-100" onclick="buyKey(3, 50)">
+            <i class="bi bi-cart-plus-fill me-2"></i>Generate 3 Days Key
+          </button>
+        </div>
+      </div>
+
+      <!-- 7 Days Plan -->
+      <div class="col-md-4 col-lg-3">
+        <div class="glass-card plan-card text-center h-100 d-flex flex-column justify-content-between">
+          <div>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span class="plan-badge"><i class="bi bi-shield-check me-1"></i> VIP Weekly</span>
+              <i class="bi bi-gem text-info fs-5"></i>
+            </div>
+            <h4 class="fw-bold mb-1">7 Days Key</h4>
+            <div class="display-6 fw-extrabold text-white my-3">₹300 <span class="fs-6 text-muted fw-normal">/ key</span></div>
+          </div>
+          <button class="btn btn-buy w-100" onclick="buyKey(7, 300)">
+            <i class="bi bi-cart-plus-fill me-2"></i>Generate 7 Days Key
+          </button>
+        </div>
+      </div>
+
+      <!-- 15 Days Plan -->
+      <div class="col-md-6 col-lg-6">
+        <div class="glass-card plan-card text-center h-100 d-flex flex-column justify-content-between">
+          <div>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span class="plan-badge text-success border-success"><i class="bi bi-star-fill me-1"></i> Half-Month Pro</span>
+              <i class="bi bi-star-fill text-success fs-5"></i>
+            </div>
+            <h4 class="fw-bold mb-1">15 Days Key</h4>
+            <div class="display-6 fw-extrabold text-white my-3">₹550 <span class="fs-6 text-muted fw-normal">/ key</span></div>
+          </div>
+          <button class="btn btn-buy w-100" onclick="buyKey(15, 550)">
+            <i class="bi bi-cart-plus-fill me-2"></i>Generate 15 Days Key
+          </button>
+        </div>
+      </div>
+
+      <!-- 30 Days Monthly Plan -->
+      <div class="col-md-6 col-lg-6">
+        <div class="glass-card plan-card text-center h-100 d-flex flex-column justify-content-between">
+          <div>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span class="plan-badge text-cyan border-cyan"><i class="bi bi-rocket-takeoff-fill me-1"></i> Monthly Ultimate</span>
+              <i class="bi bi-rocket-takeoff-fill text-cyan fs-5"></i>
+            </div>
+            <h4 class="fw-bold mb-1">30 Days Monthly</h4>
+            <div class="display-6 fw-extrabold text-white my-3">₹999 <span class="fs-6 text-muted fw-normal">/ key</span></div>
+          </div>
+          <button class="btn btn-buy w-100" onclick="buyKey(30, 999)">
+            <i class="bi bi-cart-plus-fill me-2"></i>Generate 30 Days Key
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Alert Box for Newly Generated Key -->
+    <div id="keyAlert" class="glass-card key-alert p-4 mb-5 d-none">
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <div class="fw-bold text-success"><i class="bi bi-check-circle-fill me-2"></i>KEY GENERATED & ACTIVATED</div>
+        <button class="btn-close btn-close-white" onclick="document.getElementById('keyAlert').classList.add('d-none')"></button>
+      </div>
+      <div class="d-flex flex-column flex-md-row gap-2 mt-3">
+        <input type="text" id="generatedKeyText" class="form-control bg-dark border-secondary text-warning fw-bold fs-4 py-2 px-3" readonly>
+        <button class="btn btn-success px-4 fw-bold rounded-3" onclick="copyKey()"><i class="bi bi-copy me-2"></i>Copy Key</button>
+      </div>
+    </div>
+
+    <!-- Active Keys Data Table -->
+    <div class="glass-card p-4">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold m-0"><i class="bi bi-key-fill text-warning me-2"></i>Generated Keys Registry</h4>
+        <button class="btn btn-sm btn-outline-light rounded-3 px-3" onclick="loadKeys()"><i class="bi bi-arrow-clockwise me-1"></i> Refresh List</button>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-custom">
+          <thead>
+            <tr>
+              <th>License Key</th>
+              <th>Customer</th>
+              <th>Duration</th>
+              <th>HWID Lock Status</th>
+              <th>Expiration Date</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="keysTableBody">
+            <tr><td colspan="7" class="text-center text-muted py-4">Fetching active keys...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Add Funds Modal -->
+  <div class="modal fade" id="addFundsModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content p-3">
+        <div class="modal-header border-bottom border-secondary">
+          <h5 class="modal-title fw-bold"><i class="bi bi-plus-circle text-warning me-2"></i>Add Reseller Wallet Credits</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body py-4">
+          <label class="form-label fw-semibold text-muted">Amount to Add (₹)</label>
+          <input type="number" id="addAmountInput" class="form-control bg-dark border-secondary text-white py-2 fs-5" value="500">
+        </div>
+        <div class="modal-footer border-top border-secondary">
+          <button type="button" class="btn btn-secondary rounded-3" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-success rounded-3 px-4" onclick="addFunds()">Confirm Deposit</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const ADMIN_SECRET = 'angry-admin-secret-change-me';
+
+    async function loadWallet() {
+      try {
+        const res = await fetch('/admin/wallet', { headers: { 'x-admin-secret': ADMIN_SECRET } });
+        const data = await res.json();
+        if (data.status === 'success') {
+          document.getElementById('walletBalance').innerText = data.balance;
+        }
+      } catch (e) { console.error(e); }
+    }
+
+    async function addFunds() {
+      const amount = parseFloat(document.getElementById('addAmountInput').value);
+      if (!amount || amount <= 0) return alert('Enter valid deposit amount');
+
+      const res = await fetch('/admin/wallet/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
+        body: JSON.stringify({ amount })
+      });
+      const data = await res.json();
+      if (data.status === 'success') {
+        document.getElementById('walletBalance').innerText = data.balance;
+        bootstrap.Modal.getInstance(document.getElementById('addFundsModal')).hide();
+      }
+    }
+
+    async function buyKey(days, price) {
+      const username = prompt(`Enter Customer Name / ID for ${days === -1 ? 'Lifetime' : (days < 1 ? '5 Hours' : days + ' Day')} Key:`, `User_${Math.floor(Math.random()*1000)}`);
+      if (!username) return;
+
+      const res = await fetch('/admin/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
+        body: JSON.stringify({ user: username, days, price })
+      });
+
+      const data = await res.json();
+      if (data.status === 'success') {
+        document.getElementById('walletBalance').innerText = data.remainingBalance;
+        document.getElementById('generatedKeyText').value = data.key;
+        document.getElementById('keyAlert').classList.remove('d-none');
+        loadKeys();
+      } else {
+        alert('Transaction Failed: ' + data.message);
+      }
+    }
+
+    async function loadKeys() {
+      try {
+        const res = await fetch('/admin/keys', { headers: { 'x-admin-secret': ADMIN_SECRET } });
+        const data = await res.json();
+        const tbody = document.getElementById('keysTableBody');
+        tbody.innerHTML = '';
+
+        if (data.status === 'success' && data.keys.length > 0) {
+          data.keys.forEach(k => {
+            const formatDays = k.days === -1 ? 'Lifetime' : (k.days === 0.2 ? '5 Hours' : k.days + ' Days');
+            tbody.innerHTML += `
+              <tr>
+                <td class="fw-bold key-text">${k.key}</td>
+                <td>${k.user}</td>
+                <td><span class="badge bg-purple bg-opacity-20 text-purple border border-purple">${formatDays}</span></td>
+                <td><span class="badge ${k.hwid === 'Not bound' ? 'bg-info bg-opacity-10 text-info border border-info' : 'bg-success bg-opacity-10 text-success border border-success'}">${k.hwid}</span></td>
+                <td class="small text-muted">${k.expires === 'Lifetime' ? 'Never' : new Date(k.expires).toLocaleString()}</td>
+                <td><span class="badge ${k.active && !k.expired ? 'bg-success' : 'bg-danger'}">${k.expired ? 'Expired' : (k.active ? 'Active' : 'Revoked')}</span></td>
+                <td>
+                  <button class="btn btn-sm btn-outline-warning me-1 rounded-2" onclick="resetHwid('${k.key}')">Reset HWID</button>
+                  <button class="btn btn-sm btn-outline-danger rounded-2" onclick="revokeKey('${k.key}')">Revoke</button>
+                </td>
+              </tr>
+            `;
+          });
+        } else {
+          tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">No keys generated yet</td></tr>';
+        }
+      } catch(e) { console.error(e); }
+    }
+
+    async function resetHwid(key) {
+      if (!confirm('Reset HWID binding for key: ' + key + '?')) return;
+      await fetch('/admin/reset-hwid', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
+        body: JSON.stringify({ key })
+      });
+      loadKeys();
+    }
+
+    async function revokeKey(key) {
+      if (!confirm('Permanently revoke access for key: ' + key + '?')) return;
+      await fetch('/admin/revoke', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
+        body: JSON.stringify({ key })
+      });
+      loadKeys();
+    }
+
+    function copyKey() {
+      const copyText = document.getElementById("generatedKeyText");
+      copyText.select();
+      navigator.clipboard.writeText(copyText.value);
+      alert("Key copied to clipboard!");
+    }
+
+    // Initial load
+    loadWallet();
+    loadKeys();
+  </script>
+</body>
+</html>
