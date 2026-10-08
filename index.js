@@ -47,7 +47,7 @@ function saveJSON(filePath, data) {
 // Load Initial Data from keys.json, wallet.json & config.json
 let walletBalance = loadJSON(WALLET_FILE, { balance: 1000 }).balance;
 let keys = loadJSON(KEYS_FILE, {});
-let config = loadJSON(CONFIG_FILE, { adminSecret: 'admin123' });
+let config = loadJSON(CONFIG_FILE, { adminSecret: 'admin123', maintenance: false });
 let ADMIN_SECRET = process.env.ADMIN_SECRET || config.adminSecret || 'admin123';
 
 const PRICING = {
@@ -85,7 +85,7 @@ function adminAuth(req, res, next) {
   next();
 }
 
-// GET /admin/stats — Get Reseller Live Stats
+// GET /admin/stats — Get Reseller Live Stats & Maintenance Status
 app.get('/admin/stats', adminAuth, (req, res) => {
   const allKeys = Object.values(keys);
   const totalKeys = allKeys.length;
@@ -97,7 +97,25 @@ app.get('/admin/stats', adminAuth, (req, res) => {
     totalKeys,
     activeKeys,
     totalRevenue,
-    walletBalance
+    walletBalance,
+    maintenance: !!config.maintenance
+  });
+});
+
+// POST /admin/maintenance/toggle — Toggle Server Maintenance Mode
+app.post('/admin/maintenance/toggle', adminAuth, (req, res) => {
+  const { maintenance } = req.body;
+  if (typeof maintenance === 'boolean') {
+    config.maintenance = maintenance;
+  } else {
+    config.maintenance = !config.maintenance;
+  }
+  saveJSON(CONFIG_FILE, config);
+
+  res.json({
+    status: 'success',
+    maintenance: config.maintenance,
+    message: config.maintenance ? 'Server Maintenance Mode ENABLED 🛠️' : 'Server Maintenance Mode DISABLED 🟢'
   });
 });
 
@@ -291,6 +309,10 @@ app.post('/admin/reset-hwid', adminAuth, (req, res) => {
 
 // POST /api/login — Public App Verification API (Proxy Mode)
 app.post('/api/login', (req, res) => {
+  if (config.maintenance) {
+    return res.json({ status: 'error', message: '⚠️ Server Under Maintenance! Please try again later.' });
+  }
+
   const { key, hwid } = req.body;
 
   if (!key || !hwid) {

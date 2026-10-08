@@ -226,6 +226,9 @@
         <button class="btn btn-outline-warning rounded-4 py-3 px-3 fw-bold space-font" data-bs-toggle="modal" data-bs-target="#addFundsModal">
           <i class="bi bi-plus-lg me-1"></i> ADD FUNDS
         </button>
+        <button id="maintenanceBtn" class="btn btn-outline-secondary rounded-4 py-3 px-3 fw-bold space-font" onclick="toggleMaintenanceMode()">
+          <i class="bi bi-tools me-1"></i> MAINT: OFF
+        </button>
         <button class="btn btn-outline-purple rounded-4 py-3 px-3 fw-bold space-font" data-bs-toggle="modal" data-bs-target="#bulkGenerateModal" style="color:#c084fc; border-color: rgba(192, 132, 252, 0.4);">
           <i class="bi bi-stack me-1"></i> BULK
         </button>
@@ -236,6 +239,11 @@
           <i class="bi bi-box-arrow-right me-1"></i> LOGOUT
         </button>
       </div>
+    </div>
+
+    <!-- Maintenance Warning Alert Banner -->
+    <div id="maintenanceAlert" class="alert alert-warning border border-warning bg-warning bg-opacity-10 text-warning d-none space-font mb-4 py-3 text-center fw-bold fs-5 shadow rounded-4">
+      <i class="bi bi-exclamation-triangle-fill me-2 fs-4"></i>SERVER IS CURRENTLY IN MAINTENANCE MODE! App logins are currently paused.
     </div>
 
     <!-- Live Stats Overview Cards -->
@@ -621,6 +629,37 @@
       } catch (e) { console.error(e); }
     }
 
+    function updateMaintenanceUI(isMaintenance) {
+      const btn = document.getElementById('maintenanceBtn');
+      const alertBanner = document.getElementById('maintenanceAlert');
+
+      if (isMaintenance) {
+        if (btn) {
+          btn.className = 'btn btn-warning rounded-4 py-3 px-3 fw-bold space-font';
+          btn.innerHTML = '<i class="bi bi-tools me-1"></i> MAINT: ON ⚠️';
+        }
+        if (alertBanner) alertBanner.classList.remove('d-none');
+      } else {
+        if (btn) {
+          btn.className = 'btn btn-outline-secondary rounded-4 py-3 px-3 fw-bold space-font';
+          btn.innerHTML = '<i class="bi bi-tools me-1"></i> MAINT: OFF';
+        }
+        if (alertBanner) alertBanner.classList.add('d-none');
+      }
+    }
+
+    async function toggleMaintenanceMode() {
+      const res = await fetch('/admin/maintenance/toggle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-secret': currentAdminSecret }
+      });
+      const data = await res.json();
+      if (data.status === 'success') {
+        updateMaintenanceUI(data.maintenance);
+        alert(data.message);
+      }
+    }
+
     async function loadStats() {
       try {
         const res = await fetch('/admin/stats', { headers: { 'x-admin-secret': currentAdminSecret } });
@@ -629,6 +668,7 @@
           document.getElementById('statTotalKeys').innerText = data.totalKeys;
           document.getElementById('statActiveKeys').innerText = data.activeKeys;
           document.getElementById('statTotalRevenue').innerText = '₹' + data.totalRevenue;
+          updateMaintenanceUI(data.maintenance);
         }
       } catch(e) { console.error(e); }
     }
