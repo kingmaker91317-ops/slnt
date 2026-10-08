@@ -51,9 +51,9 @@ let config = loadJSON(CONFIG_FILE, { adminSecret: 'admin123' });
 let ADMIN_SECRET = process.env.ADMIN_SECRET || config.adminSecret || 'admin123';
 
 const PRICING = {
-  0.2: 10,   // 5 Hours Trial = ₹10
-  1: 20,     // 1 Day = ₹20
-  3: 50,     // 3 Days = ₹50
+  0.2: 30,   // 5 Hours Trial = ₹30
+  1: 70,     // 1 Day = ₹70
+  3: 160,    // 3 Days = ₹160
   7: 300,    // 7 Days = ₹300
   15: 550,   // 15 Days = ₹550
   30: 999    // 30 Days Monthly = ₹999
