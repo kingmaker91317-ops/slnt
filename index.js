@@ -307,6 +307,39 @@ app.post('/admin/reset-hwid', adminAuth, (req, res) => {
   res.json({ status: 'success', message: 'HWID reset done' });
 });
 
+// POST /admin/import-keys — Import / Restore Keys Backup
+app.post('/admin/import-keys', adminAuth, (req, res) => {
+  const { importedKeys } = req.body;
+  if (!importedKeys || typeof importedKeys !== 'object') {
+    return res.status(400).json({ status: 'error', message: 'Invalid keys backup data' });
+  }
+
+  let count = 0;
+  Object.entries(importedKeys).forEach(([k, v]) => {
+    if (k && v && typeof v === 'object') {
+      keys[k] = {
+        user: v.user || 'Imported_User',
+        days: v.days || 1,
+        price: v.price || 0,
+        expiresAt: v.expiresAt || (v.expires && v.expires !== 'Lifetime' ? new Date(v.expires).getTime() : -1),
+        active: v.active !== undefined ? v.active : true,
+        hwid: (v.hwid === 'Not bound' || !v.hwid) ? null : v.hwid,
+        createdAt: v.createdAt || Date.now()
+      };
+      count++;
+    }
+  });
+
+  saveJSON(KEYS_FILE, keys);
+
+  res.json({
+    status: 'success',
+    importedCount: count,
+    totalKeys: Object.keys(keys).length,
+    message: `Successfully imported ${count} key(s)!`
+  });
+});
+
 // POST /api/login — Public App Verification API (Proxy Mode)
 app.post('/api/login', (req, res) => {
   if (config.maintenance) {

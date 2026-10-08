@@ -426,6 +426,10 @@
 
           <!-- Export TXT -->
           <button class="btn btn-sm btn-outline-success rounded-3 px-3 space-font" onclick="exportKeysTxt()"><i class="bi bi-file-earmark-arrow-down me-1"></i> Export TXT</button>
+
+          <!-- Import TXT -->
+          <button class="btn btn-sm btn-outline-info rounded-3 px-3 space-font" onclick="triggerImportBackup()"><i class="bi bi-file-earmark-arrow-up me-1"></i> Import TXT</button>
+          <input type="file" id="importFileInput" class="d-none" accept=".txt,.json" onchange="handleFileImport(event)">
           
           <!-- Refresh -->
           <button class="btn btn-sm btn-outline-light rounded-3 px-3 space-font" onclick="loadKeys()"><i class="bi bi-arrow-clockwise me-1"></i> Refresh</button>
@@ -867,6 +871,96 @@
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+    }
+
+    function triggerImportBackup() {
+      document.getElementById('importFileInput').click();
+    }
+
+    function parseTxtKeys(text) {
+      const importedObj = {};
+      const blocks = text.split(/-------------------------------------------|===========================================/);
+      
+      blocks.forEach(block => {
+        const keyMatch = block.match(/KEY:\s*(AM-[A-Z0-9]+-[A-Z0-9]+-[A-Z0-9]+)/i);
+        const userMatch = block.match(/USER:\s*(.+)/i);
+        const durationMatch = block.match(/DURATION:\s*(.+)/i);
+        const statusMatch = block.match(/STATUS:\s*(.+)/i);
+        const expiresMatch = block.match(/EXPIRES:\s*(.+)/i);
+        const hwidMatch = block.match(/HWID:\s*(.+)/i);
+
+        if (keyMatch) {
+          const key = keyMatch[1].trim();
+          const user = userMatch ? userMatch[1].trim() : 'Imported_User';
+          const expires = expiresMatch ? expiresMatch[1].trim() : 'Lifetime';
+          const hwid = hwidMatch ? hwidMatch[1].trim() : 'Not bound';
+          const statusStr = statusMatch ? statusMatch[1].trim() : 'Active';
+
+          importedObj[key] = {
+            user,
+            days: durationMatch ? (durationMatch[1].includes('Hour') ? 0.2 : parseFloat(durationMatch[1])) : 1,
+            expires,
+            active: !statusStr.toLowerCase().includes('block') && !statusStr.toLowerCase().includes('revoke'),
+            hwid
+          };
+        }
+      });
+
+      return importedObj;
+    }
+
+    async function handleFileImport(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async function(evt) {
+        const content = evt.target.result;
+        let importedObj = {};
+
+        try {
+          if (file.name.endsWith('.json')) {
+            importedObj = JSON.parse(content);
+          } else {
+            try {
+              importedObj = JSON.parse(content);
+            } catch(err) {
+              importedObj = parseTxtKeys(content);
+            }
+          }
+        } catch(err) {
+          alert('Error parsing file: ' + err.message);
+          return;
+        }
+
+        if (Object.keys(importedObj).length === 0) {
+          alert('No valid key entries found in file!');
+          return;
+        }
+
+        if (!confirm(`Found ${Object.keys(importedObj).length} keys in file. Restore into database?`)) return;
+
+        try {
+          const res = await fetch('/admin/import-keys', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-admin-secret': currentAdminSecret },
+            body: JSON.stringify({ importedKeys: importedObj })
+          });
+          const data = await res.json();
+          if (data.status === 'success') {
+            alert(data.message);
+            loadKeys();
+            loadStats();
+          } else {
+            alert('Import Failed: ' + data.message);
+          }
+        } catch(err) {
+          alert('Failed to connect to server: ' + err.message);
+        }
+        e.target.value = '';
+      };
+
+      reader.readAsText(file);
     }
 
     async function toggleBlockKey(key) {
