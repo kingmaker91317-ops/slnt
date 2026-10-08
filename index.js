@@ -18,6 +18,10 @@ const WALLET_FILE = fs.existsSync(path.join(__dirname, 'src', 'wallet.json'))
   ? path.join(__dirname, 'src', 'wallet.json')
   : path.join(__dirname, 'wallet.json');
 
+const CONFIG_FILE = fs.existsSync(path.join(__dirname, 'src', 'config.json'))
+  ? path.join(__dirname, 'src', 'config.json')
+  : path.join(__dirname, 'config.json');
+
 // Helper to Load JSON File safely
 function loadJSON(filePath, defaultData) {
   try {
@@ -40,9 +44,11 @@ function saveJSON(filePath, data) {
   }
 }
 
-// Load Initial Data from keys.json & wallet.json
+// Load Initial Data from keys.json, wallet.json & config.json
 let walletBalance = loadJSON(WALLET_FILE, { balance: 1000 }).balance;
 let keys = loadJSON(KEYS_FILE, {});
+let config = loadJSON(CONFIG_FILE, { adminSecret: 'admin123' });
+let ADMIN_SECRET = process.env.ADMIN_SECRET || config.adminSecret || 'admin123';
 
 const PRICING = {
   0.2: 10,   // 5 Hours Trial = ₹10
@@ -71,7 +77,6 @@ app.get('/', (req, res) => {
 });
 
 // Admin Auth Middleware
-const ADMIN_SECRET = process.env.ADMIN_SECRET || 'angry-admin-secret-change-me';
 function adminAuth(req, res, next) {
   const secret = req.headers['x-admin-secret'];
   if (secret !== ADMIN_SECRET) {
@@ -79,6 +84,36 @@ function adminAuth(req, res, next) {
   }
   next();
 }
+
+// GET /admin/stats — Get Reseller Live Stats
+app.get('/admin/stats', adminAuth, (req, res) => {
+  const allKeys = Object.values(keys);
+  const totalKeys = allKeys.length;
+  const activeKeys = allKeys.filter(k => k.active && (k.expiresAt === -1 || Date.now() <= k.expiresAt)).length;
+  const totalRevenue = allKeys.reduce((sum, k) => sum + (k.price || 0), 0);
+
+  res.json({
+    status: 'success',
+    totalKeys,
+    activeKeys,
+    totalRevenue,
+    walletBalance
+  });
+});
+
+// POST /admin/change-password — Update Admin Security Password
+app.post('/admin/change-password', adminAuth, (req, res) => {
+  const { newPassword } = req.body;
+  if (!newPassword || newPassword.trim().length < 4) {
+    return res.status(400).json({ status: 'error', message: 'Password must be at least 4 characters long' });
+  }
+
+  ADMIN_SECRET = newPassword.trim();
+  config.adminSecret = ADMIN_SECRET;
+  saveJSON(CONFIG_FILE, config);
+
+  res.json({ status: 'success', message: 'Admin Password Updated Successfully' });
+});
 
 // GET /admin/wallet — Get Wallet Balance
 app.get('/admin/wallet', adminAuth, (req, res) => {
@@ -139,6 +174,51 @@ app.post('/admin/generate', adminAuth, (req, res) => {
   });
 });
 
+// POST /admin/generate-bulk — Generate Multiple Keys at once
+app.post('/admin/generate-bulk', adminAuth, (req, res) => {
+  const { userPrefix, days, count } = req.body;
+  const numKeys = parseInt(count) || 1;
+  if (numKeys < 1 || numKeys > 50) return res.status(400).json({ status: 'error', message: 'Quantity must be between 1 and 50' });
+
+  const unitPrice = PRICING[days] || (days * 20);
+  const totalPrice = unitPrice * numKeys;
+
+  if (walletBalance < totalPrice) {
+    return res.status(400).json({ status: 'error', message: `Insufficient Wallet Balance! Required ₹${totalPrice}, Available ₹${walletBalance}` });
+  }
+
+  walletBalance -= totalPrice;
+  saveJSON(WALLET_FILE, { balance: walletBalance });
+
+  const generatedList = [];
+  const expiresAt = days === -1 ? -1 : Date.now() + (days || 1) * 24 * 60 * 60 * 1000;
+
+  for (let i = 0; i < numKeys; i++) {
+    const key = generateKey();
+    const username = numKeys === 1 ? (userPrefix || 'User') : `${userPrefix || 'Bulk'}_${i + 1}`;
+    keys[key] = {
+      user: username,
+      days,
+      price: unitPrice,
+      expiresAt,
+      active: true,
+      hwid: null,
+      createdAt: Date.now(),
+    };
+    generatedList.push({ key, user: username });
+  }
+
+  saveJSON(KEYS_FILE, keys);
+
+  res.json({
+    status: 'success',
+    totalGenerated: numKeys,
+    generatedList,
+    priceDeducted: totalPrice,
+    remainingBalance: walletBalance
+  });
+});
+
 // GET /admin/keys — List all generated keys
 app.get('/admin/keys', adminAuth, (req, res) => {
   const result = Object.entries(keys).map(([k, v]) => ({
@@ -163,6 +243,39 @@ app.post('/admin/revoke', adminAuth, (req, res) => {
   saveJSON(KEYS_FILE, keys);
   
   res.json({ status: 'success', message: 'Key revoked' });
+});
+
+// POST /admin/toggle-block — Block / Unblock Key
+app.post('/admin/toggle-block', adminAuth, (req, res) => {
+  const { key } = req.body;
+  if (!keys[key]) return res.status(404).json({ status: 'error', message: 'Key not found' });
+  
+  keys[key].active = !keys[key].active;
+  saveJSON(KEYS_FILE, keys);
+  
+  res.json({ status: 'success', active: keys[key].active, message: keys[key].active ? 'Key unblocked' : 'Key blocked' });
+});
+
+// POST /admin/add-days — Add Extra Days to Key Expiry
+app.post('/admin/add-days', adminAuth, (req, res) => {
+  const { key, days } = req.body;
+  if (!keys[key]) return res.status(404).json({ status: 'error', message: 'Key not found' });
+  const extraDays = parseFloat(days);
+  if (isNaN(extraDays) || extraDays <= 0) return res.status(400).json({ status: 'error', message: 'Invalid days count' });
+
+  const currentExpiry = keys[key].expiresAt;
+  const baseTime = (currentExpiry === -1 || currentExpiry < Date.now()) ? Date.now() : currentExpiry;
+  keys[key].expiresAt = baseTime + (extraDays * 24 * 60 * 60 * 1000);
+  keys[key].days = (keys[key].days || 0) + extraDays;
+  keys[key].active = true;
+
+  saveJSON(KEYS_FILE, keys);
+
+  res.json({
+    status: 'success',
+    newExpiry: new Date(keys[key].expiresAt).toISOString(),
+    message: `Added ${extraDays} days to key`
+  });
 });
 
 // POST /admin/reset-hwid — Reset Device HWID

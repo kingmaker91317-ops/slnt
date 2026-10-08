@@ -169,7 +169,35 @@
 </head>
 <body class="p-3 p-md-5">
 
-  <div class="container-xl">
+  <!-- Admin Login Screen -->
+  <div id="loginScreen" class="min-vh-100 d-flex align-items-center justify-content-center p-3">
+    <div class="cyber-card p-4 p-md-5 text-center" style="max-width: 440px; width: 100%;">
+      <div class="rounded-circle p-3 bg-purple bg-opacity-20 text-purple d-inline-block mb-3 border border-purple">
+        <i class="bi bi-shield-lock-fill fs-1"></i>
+      </div>
+      <h2 class="space-font fw-bold mb-1 brand-glow">ADMIN LOGIN</h2>
+      <p class="text-muted small mb-4">ANGRY MOD Reseller & Key Management System</p>
+      
+      <div id="loginError" class="alert alert-danger d-none py-2 small space-font mb-3"></div>
+
+      <form onsubmit="handleAdminLogin(event)">
+        <div class="mb-4 text-start">
+          <label class="form-label text-muted small fw-bold space-font">ADMIN SECURITY PASSWORD</label>
+          <div class="input-group">
+            <span class="input-group-text bg-dark border-secondary text-muted"><i class="bi bi-key-fill"></i></span>
+            <input type="password" id="adminSecretInput" class="form-control bg-dark border-secondary text-white space-font py-2" placeholder="Enter Admin Password..." required>
+          </div>
+          <div class="form-text text-muted extra-small mt-2" style="font-size: 0.8rem;">Default Password: <code class="text-warning">admin123</code></div>
+        </div>
+        <button type="submit" class="btn btn-neon space-font w-100 py-3 fw-bold">
+          <i class="bi bi-box-arrow-in-right me-2"></i>LOGIN TO DASHBOARD
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Main Admin Dashboard (Hidden until login) -->
+  <div id="mainDashboard" class="container-xl d-none">
     
     <!-- Top Header Navigation -->
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-4 mb-5">
@@ -182,19 +210,70 @@
       </div>
 
       <div class="d-flex align-items-center gap-3">
-        <div class="wallet-box d-flex align-items-center gap-3">
+        <div class="wallet-box d-flex align-items-center gap-3" style="cursor: pointer; user-select: none;" onclick="toggleBalanceVisibility()" title="Click to show/hide balance">
           <div class="rounded-circle p-2 bg-warning bg-opacity-20 text-warning">
             <i class="bi bi-wallet2 fs-3"></i>
           </div>
           <div>
-            <div class="text-muted small fw-bold space-font">RESELLER BALANCE</div>
-            <div class="fw-extrabold text-success fs-3 space-font">₹<span id="walletBalance">0</span></div>
+            <div class="text-muted small fw-bold space-font d-flex align-items-center gap-2">
+              <span>RESELLER BALANCE</span>
+              <i class="bi bi-eye-slash-fill text-muted" id="balanceEyeIcon"></i>
+            </div>
+            <div class="fw-extrabold text-success fs-3 space-font">₹<span id="walletBalance">••••</span></div>
           </div>
         </div>
 
-        <button class="btn btn-outline-warning rounded-4 py-3 px-4 fw-bold space-font" data-bs-toggle="modal" data-bs-target="#addFundsModal">
+        <button class="btn btn-outline-warning rounded-4 py-3 px-3 fw-bold space-font" data-bs-toggle="modal" data-bs-target="#addFundsModal">
           <i class="bi bi-plus-lg me-1"></i> ADD FUNDS
         </button>
+        <button class="btn btn-outline-purple rounded-4 py-3 px-3 fw-bold space-font" data-bs-toggle="modal" data-bs-target="#bulkGenerateModal" style="color:#c084fc; border-color: rgba(192, 132, 252, 0.4);">
+          <i class="bi bi-stack me-1"></i> BULK
+        </button>
+        <button class="btn btn-outline-info rounded-4 py-3 px-3 fw-bold space-font" data-bs-toggle="modal" data-bs-target="#changePassModal">
+          <i class="bi bi-key-fill me-1"></i> PASS
+        </button>
+        <button class="btn btn-outline-danger rounded-4 py-3 px-3 fw-bold space-font" onclick="logoutAdmin()">
+          <i class="bi bi-box-arrow-right me-1"></i> LOGOUT
+        </button>
+      </div>
+    </div>
+
+    <!-- Live Stats Overview Cards -->
+    <div class="row g-4 mb-5">
+      <div class="col-md-4">
+        <div class="cyber-card p-4 d-flex align-items-center gap-3">
+          <div class="rounded-3 p-3 bg-purple bg-opacity-20 text-purple border border-purple">
+            <i class="bi bi-key-fill fs-2"></i>
+          </div>
+          <div>
+            <div class="text-muted small fw-bold space-font">TOTAL KEYS GENERATED</div>
+            <div class="fs-2 fw-extrabold text-purple space-font" id="statTotalKeys">0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="cyber-card p-4 d-flex align-items-center gap-3">
+          <div class="rounded-3 p-3 bg-success bg-opacity-20 text-success border border-success">
+            <i class="bi bi-check-circle-fill fs-2"></i>
+          </div>
+          <div>
+            <div class="text-muted small fw-bold space-font">ACTIVE LICENSES</div>
+            <div class="fs-2 fw-extrabold text-success space-font" id="statActiveKeys">0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="cyber-card p-4 d-flex align-items-center gap-3">
+          <div class="rounded-3 p-3 bg-info bg-opacity-20 text-info border border-info">
+            <i class="bi bi-cash-stack fs-2"></i>
+          </div>
+          <div>
+            <div class="text-muted small fw-bold space-font">TOTAL REVENUE / SPENT</div>
+            <div class="fs-2 fw-extrabold text-info space-font" id="statTotalRevenue">₹0</div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -312,16 +391,37 @@
         <button class="btn-close btn-close-white" onclick="document.getElementById('keyAlert').classList.add('d-none')"></button>
       </div>
       <div class="d-flex flex-column flex-md-row gap-3 mt-3">
-        <input type="text" id="generatedKeyText" class="form-control bg-dark border-secondary text-warning fw-bold fs-3 space-font py-2 px-3" readonly>
-        <button class="btn btn-success px-4 fw-bold space-font rounded-3" onclick="copyKey()"><i class="bi bi-copy me-2"></i>COPY KEY</button>
+        <textarea id="generatedKeyText" class="form-control bg-dark border-secondary text-warning fw-bold fs-5 space-font py-2 px-3" rows="2" readonly></textarea>
+        <button class="btn btn-success px-4 fw-bold space-font rounded-3" onclick="copyKey()"><i class="bi bi-copy me-2"></i>COPY ALL</button>
       </div>
     </div>
 
     <!-- Active Keys Data Table -->
     <div class="cyber-card p-4">
-      <div class="d-flex justify-content-between align-items-center mb-4">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
         <h4 class="space-font fw-bold m-0"><i class="bi bi-cpu-fill text-purple me-2"></i>Generated Keys Database</h4>
-        <button class="btn btn-sm btn-outline-light rounded-3 px-3 space-font" onclick="loadKeys()"><i class="bi bi-arrow-clockwise me-1"></i> Refresh Data</button>
+        
+        <div class="d-flex flex-wrap align-items-center gap-2">
+          <!-- Search Bar -->
+          <div class="input-group input-group-sm" style="max-width: 220px;">
+            <span class="input-group-text bg-dark border-secondary text-muted"><i class="bi bi-search"></i></span>
+            <input type="text" id="keySearchInput" class="form-control bg-dark border-secondary text-white space-font" placeholder="Search user/key..." oninput="filterKeysTable()">
+          </div>
+
+          <!-- Status Filter -->
+          <select id="keyStatusFilter" class="form-select form-select-sm bg-dark border-secondary text-white space-font" style="max-width: 130px;" onchange="filterKeysTable()">
+            <option value="all">All Status</option>
+            <option value="active">Active</option>
+            <option value="blocked">Blocked</option>
+            <option value="expired">Expired</option>
+          </select>
+
+          <!-- Export TXT -->
+          <button class="btn btn-sm btn-outline-success rounded-3 px-3 space-font" onclick="exportKeysTxt()"><i class="bi bi-file-earmark-arrow-down me-1"></i> Export TXT</button>
+          
+          <!-- Refresh -->
+          <button class="btn btn-sm btn-outline-light rounded-3 px-3 space-font" onclick="loadKeys()"><i class="bi bi-arrow-clockwise me-1"></i> Refresh</button>
+        </div>
       </div>
 
       <div class="table-responsive">
@@ -366,18 +466,192 @@
     </div>
   </div>
 
+  <!-- Change Password Modal -->
+  <div class="modal fade" id="changePassModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content p-3" style="background:#0b0f19; border:1px solid rgba(14, 165, 233, 0.4);">
+        <div class="modal-header border-bottom border-secondary">
+          <h5 class="modal-title fw-bold space-font"><i class="bi bi-shield-lock text-info me-2"></i>Change Admin Password</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body py-4">
+          <label class="form-label fw-semibold text-muted space-font">New Admin Password</label>
+          <input type="password" id="newPasswordInput" class="form-control bg-dark border-secondary text-white py-2 space-font" placeholder="Enter new password (min 4 chars)">
+        </div>
+        <div class="modal-footer border-top border-secondary">
+          <button type="button" class="btn btn-secondary rounded-3 space-font" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-info rounded-3 px-4 fw-bold space-font" onclick="changeAdminPassword()">Update Password</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bulk Key Generation Modal -->
+  <div class="modal fade" id="bulkGenerateModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content p-3" style="background:#0b0f19; border:1px solid rgba(192, 132, 252, 0.4);">
+        <div class="modal-header border-bottom border-secondary">
+          <h5 class="modal-title fw-bold space-font" style="color:#c084fc;"><i class="bi bi-stack me-2"></i>Bulk License Key Generator</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body py-4">
+          <div class="mb-3">
+            <label class="form-label text-muted small space-font">Customer Name / Batch Tag</label>
+            <input type="text" id="bulkUserPrefix" class="form-control bg-dark border-secondary text-white space-font" placeholder="e.g. Reseller_John">
+          </div>
+          <div class="mb-3">
+            <label class="form-label text-muted small space-font">Select Plan Duration</label>
+            <select id="bulkDaysSelect" class="form-select bg-dark border-secondary text-white space-font">
+              <option value="0.2">5 Hours Trial (₹10/key)</option>
+              <option value="1" selected>1 Day Pass (₹20/key)</option>
+              <option value="3">3 Days Pass (₹50/key)</option>
+              <option value="7">7 Days Weekly (₹300/key)</option>
+              <option value="15">15 Days Pass (₹550/key)</option>
+              <option value="30">30 Days Monthly (₹999/key)</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label text-muted small space-font">Quantity of Keys (1 to 50)</label>
+            <input type="number" id="bulkCountInput" class="form-control bg-dark border-secondary text-white space-font" value="5" min="1" max="50">
+          </div>
+        </div>
+        <div class="modal-footer border-top border-secondary">
+          <button type="button" class="btn btn-secondary rounded-3 space-font" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn rounded-3 px-4 fw-bold space-font" style="background:#8b5cf6; color:white;" onclick="generateBulkKeys()">Generate Batch</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    const ADMIN_SECRET = 'angry-admin-secret-change-me';
+    let currentAdminSecret = sessionStorage.getItem('adminSecret') || '';
+    let allFetchedKeys = [];
+    let isBalanceHidden = true;
+    let actualWalletBalance = 0;
+
+    async function checkAuth() {
+      if (!currentAdminSecret) {
+        showLoginScreen();
+        return;
+      }
+      try {
+        const res = await fetch('/admin/wallet', { headers: { 'x-admin-secret': currentAdminSecret } });
+        if (res.status === 403 || res.status === 401) {
+          sessionStorage.removeItem('adminSecret');
+          currentAdminSecret = '';
+          showLoginScreen();
+        } else {
+          showDashboard();
+        }
+      } catch (e) {
+        showLoginScreen();
+      }
+    }
+
+    async function handleAdminLogin(e) {
+      e.preventDefault();
+      const secret = document.getElementById('adminSecretInput').value.trim();
+      const errDiv = document.getElementById('loginError');
+      errDiv.classList.add('d-none');
+
+      try {
+        const res = await fetch('/admin/wallet', { headers: { 'x-admin-secret': secret } });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.status === 'success') {
+            sessionStorage.setItem('adminSecret', secret);
+            currentAdminSecret = secret;
+            showDashboard();
+            return;
+          }
+        }
+        errDiv.innerText = 'Invalid Admin Security Password!';
+        errDiv.classList.remove('d-none');
+      } catch (err) {
+        errDiv.innerText = 'Connection Error to Server';
+        errDiv.classList.remove('d-none');
+      }
+    }
+
+    function showLoginScreen() {
+      document.getElementById('loginScreen').classList.remove('d-none');
+      document.getElementById('mainDashboard').classList.add('d-none');
+    }
+
+    function showDashboard() {
+      document.getElementById('loginScreen').classList.add('d-none');
+      document.getElementById('mainDashboard').classList.remove('d-none');
+      loadWallet();
+      loadStats();
+      loadKeys();
+    }
+
+    function logoutAdmin() {
+      sessionStorage.removeItem('adminSecret');
+      currentAdminSecret = '';
+      showLoginScreen();
+    }
+
+    function renderWalletDisplay() {
+      const balanceEl = document.getElementById('walletBalance');
+      const eyeIcon = document.getElementById('balanceEyeIcon');
+      if (isBalanceHidden) {
+        balanceEl.innerText = '••••';
+        if (eyeIcon) eyeIcon.className = 'bi bi-eye-slash-fill text-muted';
+      } else {
+        balanceEl.innerText = actualWalletBalance;
+        if (eyeIcon) eyeIcon.className = 'bi bi-eye-fill text-warning';
+      }
+    }
+
+    function toggleBalanceVisibility() {
+      isBalanceHidden = !isBalanceHidden;
+      renderWalletDisplay();
+    }
 
     async function loadWallet() {
       try {
-        const res = await fetch('/admin/wallet', { headers: { 'x-admin-secret': ADMIN_SECRET } });
+        const res = await fetch('/admin/wallet', { headers: { 'x-admin-secret': currentAdminSecret } });
         const data = await res.json();
         if (data.status === 'success') {
-          document.getElementById('walletBalance').innerText = data.balance;
+          actualWalletBalance = data.balance;
+          renderWalletDisplay();
         }
       } catch (e) { console.error(e); }
+    }
+
+    async function loadStats() {
+      try {
+        const res = await fetch('/admin/stats', { headers: { 'x-admin-secret': currentAdminSecret } });
+        const data = await res.json();
+        if (data.status === 'success') {
+          document.getElementById('statTotalKeys').innerText = data.totalKeys;
+          document.getElementById('statActiveKeys').innerText = data.activeKeys;
+          document.getElementById('statTotalRevenue').innerText = '₹' + data.totalRevenue;
+        }
+      } catch(e) { console.error(e); }
+    }
+
+    async function changeAdminPassword() {
+      const newPassword = document.getElementById('newPasswordInput').value.trim();
+      if (!newPassword || newPassword.length < 4) return alert('Password must be at least 4 characters long');
+
+      const res = await fetch('/admin/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-secret': currentAdminSecret },
+        body: JSON.stringify({ newPassword })
+      });
+      const data = await res.json();
+      if (data.status === 'success') {
+        alert('Password updated! Please login with your new password.');
+        sessionStorage.setItem('adminSecret', newPassword);
+        currentAdminSecret = newPassword;
+        bootstrap.Modal.getInstance(document.getElementById('changePassModal')).hide();
+        document.getElementById('newPasswordInput').value = '';
+      } else {
+        alert('Failed: ' + data.message);
+      }
     }
 
     async function addFunds() {
@@ -386,12 +660,13 @@
 
       const res = await fetch('/admin/wallet/add', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
+        headers: { 'Content-Type': 'application/json', 'x-admin-secret': currentAdminSecret },
         body: JSON.stringify({ amount })
       });
       const data = await res.json();
       if (data.status === 'success') {
-        document.getElementById('walletBalance').innerText = data.balance;
+        actualWalletBalance = data.balance;
+        renderWalletDisplay();
         bootstrap.Modal.getInstance(document.getElementById('addFundsModal')).hide();
       }
     }
@@ -402,57 +677,195 @@
 
       const res = await fetch('/admin/generate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
+        headers: { 'Content-Type': 'application/json', 'x-admin-secret': currentAdminSecret },
         body: JSON.stringify({ user: username, days, price })
       });
 
       const data = await res.json();
       if (data.status === 'success') {
-        document.getElementById('walletBalance').innerText = data.remainingBalance;
+        actualWalletBalance = data.remainingBalance;
+        renderWalletDisplay();
         document.getElementById('generatedKeyText').value = data.key;
         document.getElementById('keyAlert').classList.remove('d-none');
         loadKeys();
+        loadStats();
       } else {
         alert('Transaction Failed: ' + data.message);
       }
     }
 
+    async function generateBulkKeys() {
+      const userPrefix = document.getElementById('bulkUserPrefix').value.trim();
+      const days = parseFloat(document.getElementById('bulkDaysSelect').value);
+      const count = parseInt(document.getElementById('bulkCountInput').value);
+
+      if (!count || count < 1) return alert('Enter valid key quantity');
+
+      const res = await fetch('/admin/generate-bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-secret': currentAdminSecret },
+        body: JSON.stringify({ userPrefix, days, count })
+      });
+
+      const data = await res.json();
+      if (data.status === 'success') {
+        actualWalletBalance = data.remainingBalance;
+        renderWalletDisplay();
+
+        let outputText = `=== BULK KEYS (${data.totalGenerated} KEYS) ===\n`;
+        data.generatedList.forEach(item => {
+          outputText += `${item.key} | User: ${item.user}\n`;
+        });
+
+        document.getElementById('generatedKeyText').value = outputText;
+        document.getElementById('keyAlert').classList.remove('d-none');
+        bootstrap.Modal.getInstance(document.getElementById('bulkGenerateModal')).hide();
+        loadKeys();
+        loadStats();
+      } else {
+        alert('Bulk Generation Failed: ' + data.message);
+      }
+    }
+
+    function formatRemainingTime(expiresStr) {
+      if (expiresStr === 'Lifetime') return 'Lifetime ♾️';
+      const expiresMs = new Date(expiresStr).getTime();
+      const diff = expiresMs - Date.now();
+      if (diff <= 0) return 'Expired ❌';
+      
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+      if (days > 0) return `${days}d ${hours}h ${mins}m`;
+      return `${hours}h ${mins}m ${secs}s`;
+    }
+
     async function loadKeys() {
       try {
-        const res = await fetch('/admin/keys', { headers: { 'x-admin-secret': ADMIN_SECRET } });
+        const res = await fetch('/admin/keys', { headers: { 'x-admin-secret': currentAdminSecret } });
         const data = await res.json();
-        const tbody = document.getElementById('keysTableBody');
-        tbody.innerHTML = '';
-
-        if (data.status === 'success' && data.keys.length > 0) {
-          data.keys.forEach(k => {
-            const formatDays = k.days === 0.2 ? '5 Hours' : k.days + ' Days';
-            tbody.innerHTML += `
-              <tr>
-                <td><span class="key-display">${k.key}</span></td>
-                <td class="fw-semibold">${k.user}</td>
-                <td><span class="badge bg-purple bg-opacity-20 text-purple border border-purple space-font">${formatDays}</span></td>
-                <td><span class="badge ${k.hwid === 'Not bound' ? 'bg-info bg-opacity-10 text-info border border-info' : 'bg-success bg-opacity-10 text-success border border-success'} space-font">${k.hwid}</span></td>
-                <td class="small text-muted space-font">${new Date(k.expires).toLocaleString()}</td>
-                <td><span class="badge ${k.active && !k.expired ? 'bg-success' : 'bg-danger'} space-font">${k.expired ? 'Expired' : (k.active ? 'Active' : 'Revoked')}</span></td>
-                <td>
-                  <button class="btn btn-sm btn-outline-warning me-1 rounded-2 space-font" onclick="resetHwid('${k.key}')">Reset HWID</button>
-                  <button class="btn btn-sm btn-outline-danger rounded-2 space-font" onclick="revokeKey('${k.key}')">Revoke</button>
-                </td>
-              </tr>
-            `;
-          });
-        } else {
-          tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">No keys generated yet</td></tr>';
+        if (data.status === 'success') {
+          allFetchedKeys = data.keys || [];
+          filterKeysTable();
         }
       } catch(e) { console.error(e); }
+    }
+
+    function filterKeysTable() {
+      const searchTerm = (document.getElementById('keySearchInput').value || '').toLowerCase().trim();
+      const statusFilter = document.getElementById('keyStatusFilter').value;
+
+      const tbody = document.getElementById('keysTableBody');
+      tbody.innerHTML = '';
+
+      const filtered = allFetchedKeys.filter(k => {
+        const matchesSearch = k.key.toLowerCase().includes(searchTerm) || k.user.toLowerCase().includes(searchTerm);
+        let matchesStatus = true;
+        if (statusFilter === 'active') matchesStatus = k.active && !k.expired;
+        else if (statusFilter === 'blocked') matchesStatus = !k.active;
+        else if (statusFilter === 'expired') matchesStatus = k.expired;
+        return matchesSearch && matchesStatus;
+      });
+
+      if (filtered.length > 0) {
+        filtered.forEach(k => {
+          const formatDays = k.days === 0.2 ? '5 Hours' : k.days + ' Days';
+          const remainingTime = formatRemainingTime(k.expires);
+          tbody.innerHTML += `
+            <tr>
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="key-display">${k.key}</span>
+                  <button class="btn btn-sm btn-dark text-warning border-secondary p-1 px-2" title="Copy Key" onclick="copyToClipboard('${k.key}')"><i class="bi bi-copy"></i></button>
+                </div>
+              </td>
+              <td class="fw-semibold">${k.user}</td>
+              <td><span class="badge bg-purple bg-opacity-20 text-purple border border-purple space-font">${formatDays}</span></td>
+              <td><span class="badge ${k.hwid === 'Not bound' ? 'bg-info bg-opacity-10 text-info border border-info' : 'bg-success bg-opacity-10 text-success border border-success'} space-font">${k.hwid}</span></td>
+              <td class="small space-font fw-bold text-warning">${remainingTime}</td>
+              <td><span class="badge ${k.active && !k.expired ? 'bg-success' : 'bg-danger'} space-font">${k.expired ? 'Expired' : (k.active ? 'Active' : 'Blocked')}</span></td>
+              <td>
+                <button class="btn btn-sm btn-outline-info me-1 rounded-2 space-font" onclick="copyToClipboard('${k.key}')"><i class="bi bi-copy me-1"></i>Copy</button>
+                <button class="btn btn-sm ${k.active ? 'btn-outline-warning' : 'btn-outline-success'} me-1 rounded-2 space-font" onclick="toggleBlockKey('${k.key}')"><i class="bi ${k.active ? 'bi-slash-circle' : 'bi-check-circle'} me-1"></i>${k.active ? 'Block' : 'Unblock'}</button>
+                <button class="btn btn-sm btn-outline-primary me-1 rounded-2 space-font" onclick="addDaysToKey('${k.key}')"><i class="bi bi-calendar-plus me-1"></i>+ Days</button>
+                <button class="btn btn-sm btn-outline-secondary me-1 rounded-2 space-font" onclick="resetHwid('${k.key}')">HWID Reset</button>
+                <button class="btn btn-sm btn-outline-danger rounded-2 space-font" onclick="revokeKey('${k.key}')">Revoke</button>
+              </td>
+            </tr>
+          `;
+        });
+      } else {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">No matching keys found</td></tr>';
+      }
+    }
+
+    function exportKeysTxt() {
+      if (!allFetchedKeys || allFetchedKeys.length === 0) return alert('No keys to export');
+
+      let textContent = "===========================================\n";
+      textContent += "       ANGRY MOD LICENSE KEYS EXPORT       \n";
+      textContent += "===========================================\n\n";
+
+      allFetchedKeys.forEach((k, index) => {
+        textContent += `[${index + 1}] KEY: ${k.key}\n`;
+        textContent += `    USER: ${k.user}\n`;
+        textContent += `    DURATION: ${k.days === 0.2 ? '5 Hours' : k.days + ' Days'}\n`;
+        textContent += `    STATUS: ${k.expired ? 'Expired' : (k.active ? 'Active' : 'Blocked')}\n`;
+        textContent += `    EXPIRES: ${k.expires}\n`;
+        textContent += `    HWID: ${k.hwid}\n`;
+        textContent += "-------------------------------------------\n";
+      });
+
+      const blob = new Blob([textContent], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `ANGRY_KEYS_EXPORT_${Date.now()}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    async function toggleBlockKey(key) {
+      const res = await fetch('/admin/toggle-block', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-secret': currentAdminSecret },
+        body: JSON.stringify({ key })
+      });
+      const data = await res.json();
+      if (data.status === 'success') {
+        loadKeys();
+        loadStats();
+      }
+    }
+
+    async function addDaysToKey(key) {
+      const extraDays = prompt(`Enter number of extra days to add to key ${key}:`, "1");
+      if (!extraDays || isNaN(extraDays) || parseFloat(extraDays) <= 0) return;
+
+      const res = await fetch('/admin/add-days', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-secret': currentAdminSecret },
+        body: JSON.stringify({ key, days: extraDays })
+      });
+      const data = await res.json();
+      if (data.status === 'success') {
+        alert(`Successfully added ${extraDays} day(s) to key!`);
+        loadKeys();
+        loadStats();
+      } else {
+        alert('Failed: ' + data.message);
+      }
     }
 
     async function resetHwid(key) {
       if (!confirm('Reset HWID binding for key: ' + key + '?')) return;
       await fetch('/admin/reset-hwid', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
+        headers: { 'Content-Type': 'application/json', 'x-admin-secret': currentAdminSecret },
         body: JSON.stringify({ key })
       });
       loadKeys();
@@ -462,22 +875,41 @@
       if (!confirm('Permanently revoke access for key: ' + key + '?')) return;
       await fetch('/admin/revoke', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-admin-secret': ADMIN_SECRET },
+        headers: { 'Content-Type': 'application/json', 'x-admin-secret': currentAdminSecret },
         body: JSON.stringify({ key })
       });
       loadKeys();
+      loadStats();
+    }
+
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        alert("Copied to clipboard!");
+      }).catch(err => {
+        const input = document.createElement("textarea");
+        input.value = text;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand("copy");
+        document.body.removeChild(input);
+        alert("Copied to clipboard!");
+      });
     }
 
     function copyKey() {
       const copyText = document.getElementById("generatedKeyText");
-      copyText.select();
-      navigator.clipboard.writeText(copyText.value);
-      alert("Key copied to clipboard!");
+      copyToClipboard(copyText.value);
     }
 
-    // Initial load
-    loadWallet();
-    loadKeys();
+    // Ticker interval for live countdown timers
+    setInterval(() => {
+      if (allFetchedKeys.length > 0) {
+        filterKeysTable();
+      }
+    }, 1000);
+
+    // Initialize Auth Check on Page Load
+    checkAuth();
   </script>
 </body>
 </html>
